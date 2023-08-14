@@ -1,7 +1,7 @@
 package com.example.shoppinglist.domain
 
 interface ShopListRepository {
-    fun getShopItem(shopIteId: Int): ShopItem
+    fun getShopItem(shopItemId: Int): ShopItem
 
     fun getShopList(): List<ShopItem>
 
@@ -9,5 +9,5 @@ interface ShopListRepository {
 
     fun removeShopItem(shopItem: ShopItem)
 
-    fun editShopItem(ShopItemId: Int)
+    fun editShopItem(shopItem: ShopItem)
 }
