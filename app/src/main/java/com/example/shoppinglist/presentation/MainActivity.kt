@@ -2,19 +2,14 @@ package com.example.shoppinglist.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.TextureView
-import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
-import com.example.shoppinglist.R
 import com.example.shoppinglist.databinding.ActivityMainBinding
-import com.example.shoppinglist.domain.ShopItem
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
+    private lateinit var rvAdapter: ShopListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,8 +18,28 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
-        viewModel.shopList.observe(this) {
+        setupRv()
 
+        viewModel.shopList.observe(this) {
+            rvAdapter.shopList = it
         }
+    }
+
+    private fun setupRv() {
+        rvAdapter = ShopListAdapter()
+
+        with(binding.rvShopList){
+            adapter = rvAdapter
+            recycledViewPool.setMaxRecycledViews(
+                ShopListAdapter.DISABLED_VIEW_TYPE,
+                ShopListAdapter.MAX_PULL_SIZE
+            )
+
+            recycledViewPool.setMaxRecycledViews(
+                ShopListAdapter.ENABLED_VIEW_TYPE,
+                ShopListAdapter.MAX_PULL_SIZE
+            )
+        }
+
     }
 }
