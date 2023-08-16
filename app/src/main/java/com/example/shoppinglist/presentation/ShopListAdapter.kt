@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.shoppinglist.R
@@ -23,13 +22,17 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
             field = value
             notifyDataSetChanged()
         }
+
+    var onShopItemLongClickListener: ((ShopItem) -> Unit)? = null
+    var onShopItemClickListener: ((ShopItem) -> Unit)? = null
+
     private var count = 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopItemViewHolder {
         count++
         Log.d("ShopListAdapter", "onCreateViewHolder $count")
 
-        val itemLayoutId = when(viewType){
+        val itemLayoutId = when (viewType) {
             ENABLED_VIEW_TYPE -> R.layout.item_shop_enabled
             DISABLED_VIEW_TYPE -> R.layout.item_shop_disabled
             else -> throw RuntimeException("unknown viewType: $viewType")
@@ -49,7 +52,7 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
 
     override fun getItemViewType(position: Int): Int {
         val shopItem = shopList[position]
-        return if(shopItem.enabled){
+        return if (shopItem.enabled) {
             ENABLED_VIEW_TYPE
         } else {
             DISABLED_VIEW_TYPE
@@ -61,11 +64,16 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
         holder.tvItemName.text = shopItem.name
         holder.tvItemCount.text = shopItem.count.toString()
         holder.itemView.setOnLongClickListener {
+            onShopItemLongClickListener?.invoke(shopItem)
             true
+        }
+        holder.itemView.setOnClickListener {
+            onShopItemClickListener?.invoke(shopItem)
         }
     }
 
-    companion object{
+
+    companion object {
         const val ENABLED_VIEW_TYPE = 0
         const val DISABLED_VIEW_TYPE = 1
 
