@@ -94,8 +94,8 @@ class ShopItemViewModel : ViewModel() {
     fun resetErrorInputCount() {
         _errorInputCount.value = false
     }
-    private fun finishWork(){
+
+    private fun finishWork() {
         _finishActivity.value = Unit
     }
-
 }
