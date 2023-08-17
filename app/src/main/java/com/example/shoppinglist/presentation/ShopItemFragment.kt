@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.shoppinglist.R
 import com.example.shoppinglist.domain.ShopItem
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 
 class ShopItemFragment(
@@ -30,6 +29,7 @@ class ShopItemFragment(
     private lateinit var til_name: TextInputLayout
     private lateinit var til_count: TextInputLayout
 
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -40,6 +40,7 @@ class ShopItemFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
 
         button_save = view.findViewById(R.id.button_save)
         et_name = view.findViewById(R.id.et_name)
