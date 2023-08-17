@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.lifecycle.ViewModelProvider
+import com.example.shoppinglist.R
 import com.example.shoppinglist.databinding.ActivityShopItemBinding
 import com.example.shoppinglist.domain.ShopItem
 
@@ -23,93 +24,94 @@ class ShopItemActivity : AppCompatActivity() {
         setContentView(binding.root)
         parseIntent()
 
-        viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
-
         launchRightMode()
-        setupTextChangedListeners()
-        observeViewModel()
     }
 
     private fun launchRightMode() {
-        when (screenMode) {
-            MODE_EDIT -> launchEditMode()
-            MODE_ADD -> launchAddMode()
+        val fragment = when (screenMode) {
+            MODE_EDIT -> ShopItemFragment.newInstanceEditItem(shopItemId)
+            MODE_ADD -> ShopItemFragment.newInstanceAddItem()
+            else -> throw RuntimeException("Unknown screen mode $screenMode")
         }
+        supportFragmentManager.beginTransaction()
+            .add(R.id.shop_item_container, fragment)
+            .commit()
     }
 
-    private fun observeViewModel() {
-        viewModel.finishActivity.observe(this) {
-            val intent = MainActivity.newIntent(this)
-            startActivity(intent)
-        }
-
-        viewModel.errorInputCount.observe(this) {
-            if (it) {
-                binding.tilCount.error = "Incorrect count input"
-            } else {
-                binding.tilCount.error = null
-            }
-
-        }
-        viewModel.errorInputName.observe(this) {
-            if (it) {
-                binding.tilName.error = "Incorrect name input"
-            } else {
-                binding.tilName.error = null
-            }
-        }
-    }
-
-    private fun setupTextChangedListeners() {
-        binding.etName.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                viewModel.resetErrorInputName()
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
-        })
-
-        binding.etCount.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                viewModel.resetErrorInputCount()
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
-
-        })
-    }
-
-
-    private fun launchEditMode() {
-        viewModel.getShopItem(shopItemId)
-        viewModel.shopItem.observe(this) {
-            binding.etName.setText(it.name)
-            binding.etCount.setText(it.count.toString())
-        }
-        binding.buttonSave.setOnClickListener {
-            val name = binding.etName.text.toString().trim()
-            val count = binding.etCount.text.toString().trim()
-            viewModel.editShopItem(name, count)
-        }
-
-    }
-
-    private fun launchAddMode() {
-        binding.buttonSave.setOnClickListener {
-            val name = binding.etName.text.toString().trim()
-            val count = binding.etCount.text.toString().trim()
-            viewModel.addShopItem(name, count)
-        }
-    }
-
+    //
+//    private fun observeViewModel() {
+//        viewModel.finishActivity.observe(this) {
+//            val intent = MainActivity.newIntent(this)
+//            startActivity(intent)
+//        }
+//
+//        viewModel.errorInputCount.observe(this) {
+//            if (it) {
+//                binding.tilCount.error = "Incorrect count input"
+//            } else {
+//                binding.tilCount.error = null
+//            }
+//
+//        }
+//        viewModel.errorInputName.observe(this) {
+//            if (it) {
+//                binding.tilName.error = "Incorrect name input"
+//            } else {
+//                binding.tilName.error = null
+//            }
+//        }
+//    }
+//
+//    private fun setupTextChangedListeners() {
+//        binding.etName.addTextChangedListener(object : TextWatcher {
+//            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+//            }
+//
+//            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+//                viewModel.resetErrorInputName()
+//            }
+//
+//            override fun afterTextChanged(s: Editable?) {
+//            }
+//        })
+//
+//        binding.etCount.addTextChangedListener(object : TextWatcher {
+//            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+//            }
+//
+//            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+//                viewModel.resetErrorInputCount()
+//            }
+//
+//            override fun afterTextChanged(s: Editable?) {
+//            }
+//
+//        })
+//    }
+//
+//
+//    private fun launchEditMode() {
+//        viewModel.getShopItem(shopItemId)
+//        viewModel.shopItem.observe(this) {
+//            binding.etName.setText(it.name)
+//            binding.etCount.setText(it.count.toString())
+//        }
+//        binding.buttonSave.setOnClickListener {
+//            val name = binding.etName.text.toString().trim()
+//            val count = binding.etCount.text.toString().trim()
+//            viewModel.editShopItem(name, count)
+//        }
+//
+//    }
+//
+//    private fun launchAddMode() {
+//        binding.buttonSave.setOnClickListener {
+//            val name = binding.etName.text.toString().trim()
+//            val count = binding.etCount.text.toString().trim()
+//            viewModel.addShopItem(name, count)
+//        }
+//    }
+//
     private fun parseIntent() {
         if (!intent.hasExtra(EXTRA_SCREEN_MODE)) {
             throw RuntimeException("Param screen mode is absent")
