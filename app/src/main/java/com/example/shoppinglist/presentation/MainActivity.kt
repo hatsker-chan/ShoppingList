@@ -1,7 +1,8 @@
 package com.example.shoppinglist.presentation
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -26,6 +27,12 @@ class MainActivity : AppCompatActivity() {
         viewModel.shopList.observe(this) {
             shopListAdapter.submitList(it)
         }
+
+        binding.buttonAddShopItem.setOnClickListener {
+            val intent = ShopItemActivity.newIntentAddItem(this)
+            startActivity(intent)
+        }
+
     }
 
     private fun setupRv() {
@@ -70,13 +77,20 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupClickListener() {
         shopListAdapter.onShopItemClickListener = {
-            Log.d("MainActivityLog", "Message: $it")
+            val intent = ShopItemActivity.newIntentEdit(this@MainActivity, it.id)
+            startActivity(intent)
         }
     }
 
     private fun setupLongClickListener() {
         shopListAdapter.onShopItemLongClickListener = {
             viewModel.changeEnableState(it)
+        }
+    }
+
+    companion object{
+        fun newIntent(context: Context): Intent{
+            return Intent(context, MainActivity::class.java)
         }
     }
 }
