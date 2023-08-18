@@ -1,9 +1,9 @@
 package com.example.shoppinglist.presentation
 
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +18,8 @@ import com.google.android.material.textfield.TextInputLayout
 class ShopItemFragment : Fragment() {
 
     private lateinit var viewModel: ShopItemViewModel
+    private lateinit var onEditingFinishedListener: OnEditingFinishedListener
+
 
     private lateinit var buttonSave: Button
     private lateinit var etName: EditText
@@ -28,8 +30,16 @@ class ShopItemFragment : Fragment() {
     private var screenMode: String = MODE_UNKNOWN
     private var shopItemId: Int = ShopItem.UNDEFINED_ID
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnEditingFinishedListener){
+            onEditingFinishedListener = context
+        } else {
+            throw RuntimeException("Activity must implement OnEditingFinishedListener")
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("ShopItemFragment", "onCreate executed")
         super.onCreate(savedInstanceState)
         parseParams()
     }
@@ -68,7 +78,7 @@ class ShopItemFragment : Fragment() {
 
     private fun observeViewModel() {
         viewModel.finishActivity.observe(viewLifecycleOwner) {
-            activity?.onBackPressed()
+            onEditingFinishedListener.onEditingFinished()
         }
 
         viewModel.errorInputCount.observe(viewLifecycleOwner) {
@@ -92,9 +102,11 @@ class ShopItemFragment : Fragment() {
         etName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 viewModel.resetErrorInputName()
             }
+
             override fun afterTextChanged(s: Editable?) {
             }
         })
@@ -102,9 +114,11 @@ class ShopItemFragment : Fragment() {
         etCount.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 viewModel.resetErrorInputCount()
             }
+
             override fun afterTextChanged(s: Editable?) {
             }
         })
@@ -135,21 +149,25 @@ class ShopItemFragment : Fragment() {
 
     private fun parseParams() {
         val arguments = requireArguments()
-        if (!arguments.containsKey(SCREEN_MODE)){
+        if (!arguments.containsKey(SCREEN_MODE)) {
             throw RuntimeException("Screen mode is absent")
         }
         val mode = arguments.getString(SCREEN_MODE)
-        if (mode != MODE_EDIT && mode != MODE_ADD){
+        if (mode != MODE_EDIT && mode != MODE_ADD) {
             throw RuntimeException("Unknown screen mode: $mode")
         }
         screenMode = mode
 
-        if (screenMode == MODE_EDIT){
-            if (!arguments.containsKey(ITEM_ID)){
+        if (screenMode == MODE_EDIT) {
+            if (!arguments.containsKey(ITEM_ID)) {
                 throw RuntimeException("Shop item id is absent")
             }
             shopItemId = arguments.getInt(ITEM_ID)
         }
+    }
+
+    interface OnEditingFinishedListener{
+        fun onEditingFinished()
     }
 
     companion object {
@@ -167,7 +185,7 @@ class ShopItemFragment : Fragment() {
             }
         }
 
-        fun newInstanceEditItem(shopItemId: Int): ShopItemFragment{
+        fun newInstanceEditItem(shopItemId: Int): ShopItemFragment {
             return ShopItemFragment().apply {
                 arguments = Bundle().apply {
                     putString(SCREEN_MODE, MODE_EDIT)
