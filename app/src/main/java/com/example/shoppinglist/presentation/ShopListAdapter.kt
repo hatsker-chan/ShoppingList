@@ -2,8 +2,12 @@ package com.example.shoppinglist.presentation
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.ListAdapter
 import com.example.shoppinglist.R
+import com.example.shoppinglist.databinding.ItemShopDisabledBinding
+import com.example.shoppinglist.databinding.ItemShopEnabledBinding
 import com.example.shoppinglist.domain.ShopItem
 
 class ShopListAdapter :
@@ -19,12 +23,13 @@ class ShopListAdapter :
             else -> throw RuntimeException("unknown viewType: $viewType")
         }
 
-        val view = LayoutInflater.from(parent.context).inflate(
+        val binding = DataBindingUtil.inflate<ViewDataBinding>(
+            LayoutInflater.from(parent.context),
             itemLayoutId,
             parent,
             false
         )
-        return ShopItemViewHolder(view)
+        return ShopItemViewHolder(binding)
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -38,15 +43,25 @@ class ShopListAdapter :
 
     override fun onBindViewHolder(holder: ShopItemViewHolder, position: Int) {
         val shopItem = getItem(position)
-        holder.tvItemName.text = shopItem.name
-        holder.tvItemCount.text = shopItem.count.toString()
-        holder.itemView.setOnLongClickListener {
+        val binding = holder.binding
+        binding.root.setOnLongClickListener {
             onShopItemLongClickListener?.invoke(shopItem)
             true
         }
-        holder.itemView.setOnClickListener {
+        binding.root.setOnClickListener {
             onShopItemClickListener?.invoke(shopItem)
         }
+        when (binding){
+            is ItemShopDisabledBinding -> {
+                binding.tvItemName.text = shopItem.name
+                binding.tvItemCount.text = shopItem.count.toString()
+            }
+            is ItemShopEnabledBinding -> {
+                binding.tvItemName.text = shopItem.name
+                binding.tvItemCount.text = shopItem.count.toString()
+            }
+        }
+
     }
 
     companion object {
